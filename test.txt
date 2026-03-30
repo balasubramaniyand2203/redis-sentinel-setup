@@ -1,0 +1,11 @@
+docker exec -it redis-master redis-cli -a SuperSecurePassword123 ping
+
+docker exec -it redis-replica redis-cli -a SuperSecurePassword123 info replication
+
+docker exec -it sentinel1 redis-cli -p 26379 sentinel masters
+
+
+docker stop redis-master
+
+
+docker exec -it sentinel1 redis-cli -p 26379 sentinel get-master-addr-by-name mymaster
