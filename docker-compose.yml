@@ -33,6 +33,7 @@ services:
     image: redis:7.2
     container_name: sentinel1
     restart: always
+    user: root
     depends_on:
       - redis-master
       - redis-replica
@@ -47,6 +48,7 @@ services:
   sentinel2:
     image: redis:7.2
     container_name: sentinel2
+    user: root
     restart: always
     depends_on:
       - redis-master
@@ -62,6 +64,7 @@ services:
   sentinel3:
     image: redis:7.2
     container_name: sentinel3
+    user: root
     restart: always
     depends_on:
       - redis-master
