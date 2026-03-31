@@ -1,0 +1,2 @@
+docker exec redis redis-cli BGSAVE
+docker cp redis:/data/dump.rdb ./backup/
