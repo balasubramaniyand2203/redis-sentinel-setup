@@ -20,8 +20,6 @@ services:
     restart: always
     depends_on:
       - redis-master
-    ports:
-      - "6380:6379"
     volumes:
       - ./data/replica:/data
       - ./redis-replica.conf:/usr/local/etc/redis/redis.conf
