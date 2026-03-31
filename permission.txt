@@ -1,0 +1,6 @@
+chmod 666 sentinel1.conf sentinel2.conf sentinel3.conf
+
+
+chmod 777 . 
+# Or more specifically for the data folders
+chmod -R 777 ./data
