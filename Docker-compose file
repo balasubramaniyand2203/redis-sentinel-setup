@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  redis-master:
+    image: redis:7-alpine
+    container_name: redis-master
+    command: >
+      redis-server
+      --requirepass redispassword
+      --bind 0.0.0.0
+      --protected-mode no
+      --port 6379
+      --replica-announce-ip 13.233.96.243
+    volumes:
+      - redis-master-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.10
+
+  redis-replica:
+    image: redis:7-alpine
+    container_name: redis-replica
+    command: >
+      redis-server
+      --replicaof 13.233.96.243 6379
+      --masterauth redispassword
+      --requirepass redispassword
+      --bind 0.0.0.0
+      --protected-mode no
+      --replica-announce-ip 13.233.96.243
+    volumes:
+      - redis-replica-data:/data
+    depends_on:
+      - redis-master
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.11
+
+  sentinel-1:
+    image: redis:7-alpine
+    container_name: sentinel-1
+    command: >
+      sh -c "
+      echo 'port 26379' > /etc/sentinel.conf &&
+      echo 'sentinel monitor mymaster 13.233.96.243 6379 2' >> /etc/sentinel.conf &&
+      echo 'sentinel auth-pass mymaster redispassword' >> /etc/sentinel.conf &&
+      echo 'sentinel down-after-milliseconds mymaster 5000' >> /etc/sentinel.conf &&
+      echo 'sentinel failover-timeout mymaster 60000' >> /etc/sentinel.conf &&
+      echo 'sentinel parallel-syncs mymaster 1' >> /etc/sentinel.conf &&
+      echo 'sentinel announce-ip 13.233.96.243' >> /etc/sentinel.conf &&
+      echo 'sentinel announce-port 26379' >> /etc/sentinel.conf &&
+      redis-sentinel /etc/sentinel.conf
+      "
+    ports:
+      - "26379:26379"
+    depends_on:
+      - redis-master
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.20
+
+  sentinel-2:
+    image: redis:7-alpine
+    container_name: sentinel-2
+    command: >
+      sh -c "
+      echo 'port 26379' > /etc/sentinel.conf &&
+      echo 'sentinel monitor mymaster 13.233.96.243 6379 2' >> /etc/sentinel.conf &&
+      echo 'sentinel auth-pass mymaster redispassword' >> /etc/sentinel.conf &&
+      echo 'sentinel down-after-milliseconds mymaster 5000' >> /etc/sentinel.conf &&
+      echo 'sentinel failover-timeout mymaster 60000' >> /etc/sentinel.conf &&
+      echo 'sentinel parallel-syncs mymaster 1' >> /etc/sentinel.conf &&
+      echo 'sentinel announce-ip 13.233.96.243' >> /etc/sentinel.conf &&
+      echo 'sentinel announce-port 26380' >> /etc/sentinel.conf &&
+      redis-sentinel /etc/sentinel.conf
+      "
+    ports:
+      - "26380:26379"
+    depends_on:
+      - redis-master
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.21
+
+  sentinel-3:
+    image: redis:7-alpine
+    container_name: sentinel-3
+    command: >
+      sh -c "
+      echo 'port 26379' > /etc/sentinel.conf &&
+      echo 'sentinel monitor mymaster 13.233.96.243 6379 2' >> /etc/sentinel.conf &&
+      echo 'sentinel auth-pass mymaster redispassword' >> /etc/sentinel.conf &&
+      echo 'sentinel down-after-milliseconds mymaster 5000' >> /etc/sentinel.conf &&
+      echo 'sentinel failover-timeout mymaster 60000' >> /etc/sentinel.conf &&
+      echo 'sentinel parallel-syncs mymaster 1' >> /etc/sentinel.conf &&
+      echo 'sentinel announce-ip 13.233.96.243' >> /etc/sentinel.conf &&
+      echo 'sentinel announce-port 26381' >> /etc/sentinel.conf &&
+      redis-sentinel /etc/sentinel.conf
+      "
+    ports:
+      - "26381:26379"
+    depends_on:
+      - redis-master
+    networks:
+      redis-net:
+        ipv4_address: 172.20.0.22
+
+volumes:
+  redis-master-data:
+  redis-replica-data:
+
+networks:
+  redis-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
